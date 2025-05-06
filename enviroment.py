@@ -1,5 +1,5 @@
 import pygame
-from random import randint
+from random import choice
 
 pygame.init()
 
@@ -12,8 +12,40 @@ class Maze():
         self.inventory = []
         self.MAP = [self.backgrounds, self.obstacles, self.keys, self.doors, enemies]
 
-    def moveEnemies(self):
-        pass
+    def moveEnemies(self, speed_x=16, speed_y=12):
+        for enemy in enemies:
+            x, y = enemy[1]
+            direction = choice(self.chooseDirection(enemy[0], enemy[1]))
+            if direction == 'up':
+                y -= speed_y
+            elif direction == 'down':
+                y += speed_y
+            elif direction == 'right':
+                x += speed_x
+            elif direction == 'left':
+                x -= speed_x
+            enemy[1] = (x, y)
+    
+    def chooseDirection(self, enemy, coord, speed_x=16, speed_y=12):
+        directions = []
+        rect = enemy.get_rect(topleft=coord)
+        rect[0] += speed_x
+        if not self.checkIntersection(rect, is_player=False):
+            directions.append('right')
+        rect[0] -= speed_x * 2
+        if not self.checkIntersection(rect, is_player=False):
+            directions.append('left')
+        rect[0] += speed_x
+        rect[1] -= speed_y
+        if not self.checkIntersection(rect, is_player=False):
+            directions.append('up')
+        rect[1] += speed_x * 2
+        if not self.checkIntersection(rect, is_player=False):
+            directions.append('down')
+        rect[1] -= speed_y
+
+        return directions
+
 
     def drawMap(self, screen):
         for group in self.MAP:
@@ -48,9 +80,12 @@ class Maze():
             doors_rect_list = [door.get_rect(topleft=coord) for door, coord in self.doors]
             for door_rect in doors_rect_list:
                 if door_rect.colliderect(rect):
-                    self.doors.pop(0)
-                    self.inventory.pop()
-                    return True
+                    if not self.inventory:
+                        return True
+                    else:
+                        self.doors.pop(0)
+                        self.inventory.pop()
+                        return True
                 
         obstacles_rect_list = [obstacle.get_rect(topleft=coord) for obstacle, coord in self.obstacles]
         for obs_rect in obstacles_rect_list:

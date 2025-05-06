@@ -11,6 +11,8 @@ maze = Maze()
 enemy = Enemy()
 enemy.addEnemy(zombie_img, (144, 144))
 enemy.addEnemy(zombie_img, (288, 240))
+enemy.addEnemy(zombie_img, (352, 1008))
+enemy.addEnemy(zombie_img, (800, 528))
 player_obj = Player()
 
 label = pygame.font.Font('fonts/Roboto_Condensed-Black.ttf', 15)
@@ -18,6 +20,7 @@ label = pygame.font.Font('fonts/Roboto_Condensed-Black.ttf', 15)
 
 running = True
 while running:
+    maze.moveEnemies()
     maze.drawMap(screen)
     maze.drawInventory(screen)
     keys = pygame.key.get_pressed()
