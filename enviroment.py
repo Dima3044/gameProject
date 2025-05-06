@@ -3,6 +3,7 @@ from random import choice
 
 pygame.init()
 
+
 class Maze():
     def __init__(self):
         self.keys = keys
@@ -12,21 +13,66 @@ class Maze():
         self.inventory = []
         self.MAP = [self.backgrounds, self.obstacles, self.keys, self.doors, enemies]
 
-    def moveEnemies(self, speed_x=16, speed_y=12):
+    def moveEnemies(self, speed_x=8, speed_y=6):
+        id = 0
         for enemy in enemies:
+            enemy_rect = enemy[0].get_rect(topleft=enemy[1])
             x, y = enemy[1]
-            direction = choice(self.chooseDirection(enemy[0], enemy[1]))
+            direction = directions_history[id][1]
+            directions = self.chooseDirection(enemy[0], enemy[1])
+
+            if directions == directions_history[id][0]:
+                direction = directions_history[id][1]
+            else:
+                up_or_down = []
+                left_or_right = []
+                if direction == 'right' or direction == 'left':
+                    if 'up' in directions:
+                        up_or_down.append('up')
+                    if 'down' in directions:
+                        up_or_down.append('down')
+
+                elif direction == 'up' or direction == 'down':
+                    if 'right' in directions:
+                        left_or_right.append('right')
+                    if 'left' in directions:
+                        left_or_right.append('left')
+
+                if up_or_down:
+                    direction = choice(up_or_down)
+                elif left_or_right:
+                    direction = choice(left_or_right)
+                else:
+                    direction = choice(directions)
+
+            directions_history[id] = [directions, direction]
             if direction == 'up':
-                y -= speed_y
+                enemy_rect[1] -= speed_y
+                if not self.checkIntersection(enemy_rect, is_player=False):
+                    enemy_rect[1] += speed_y
+                    y -= speed_y
+
             elif direction == 'down':
-                y += speed_y
+                enemy_rect[1] += speed_y
+                if not self.checkIntersection(enemy_rect, is_player=False):
+                    enemy_rect[1] -= speed_y
+                    y += speed_y
+
             elif direction == 'right':
-                x += speed_x
+                enemy_rect[0] += speed_x
+                if not self.checkIntersection(enemy_rect, is_player=False):
+                    enemy_rect[0] -= speed_x
+                    x += speed_x
+
             elif direction == 'left':
-                x -= speed_x
+                enemy_rect[0] -= speed_x
+                if not self.checkIntersection(enemy_rect, is_player=False):
+                    enemy_rect[0] += speed_x
+                    x -= speed_x
             enemy[1] = (x, y)
-    
-    def chooseDirection(self, enemy, coord, speed_x=16, speed_y=12):
+            id += 1
+
+    def chooseDirection(self, enemy, coord, speed_x=8, speed_y=6):
         directions = []
         rect = enemy.get_rect(topleft=coord)
         rect[0] += speed_x
@@ -45,7 +91,6 @@ class Maze():
         rect[1] -= speed_y
 
         return directions
-
 
     def drawMap(self, screen):
         for group in self.MAP:
@@ -66,7 +111,6 @@ class Maze():
                     y += speed_y
                 obj[1] = (x, y)
 
-
     def checkIntersection(self, rect, is_player=True):
         obstacles_rect_list = []
         if is_player:
@@ -76,7 +120,7 @@ class Maze():
                     self.keys.pop(index)
                     key_x = len(self.inventory) * 32
                     self.inventory.append([key, (key_x, 0)])
-                
+
             doors_rect_list = [door.get_rect(topleft=coord) for door, coord in self.doors]
             for door_rect in doors_rect_list:
                 if door_rect.colliderect(rect):
@@ -86,7 +130,7 @@ class Maze():
                         self.doors.pop(0)
                         self.inventory.pop()
                         return True
-                
+
         obstacles_rect_list = [obstacle.get_rect(topleft=coord) for obstacle, coord in self.obstacles]
         for obs_rect in obstacles_rect_list:
             if obs_rect.colliderect(rect):
@@ -97,11 +141,14 @@ class Maze():
 class Enemy():
     def __init__(self):
         pass
+
     def addEnemy(self, img, coord):
         enemies.append([img, coord])
-        
-enemies = []
+        directions_history[len(directions_history)] = [[], 'right']
 
+
+enemies = []
+directions_history = {}
 background = pygame.image.load('images/background.png')
 screen = pygame.display.set_mode((300, 300))
 obstacles = [

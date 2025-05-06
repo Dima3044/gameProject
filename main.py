@@ -9,10 +9,9 @@ screen = pygame.display.set_mode((300, 300))
 zombie_img = pygame.image.load('images/zombie.png')
 maze = Maze()
 enemy = Enemy()
-enemy.addEnemy(zombie_img, (144, 144))
-enemy.addEnemy(zombie_img, (288, 240))
+
 enemy.addEnemy(zombie_img, (352, 1008))
-enemy.addEnemy(zombie_img, (800, 528))
+
 player_obj = Player()
 
 label = pygame.font.Font('fonts/Roboto_Condensed-Black.ttf', 15)
