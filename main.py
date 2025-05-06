@@ -4,7 +4,7 @@ from player import Player
 
 pygame.init()
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((300, 300))
+screen = pygame.display.set_mode((1000, 1000))
 
 zombie_img = pygame.image.load('images/zombie.png')
 maze = Maze()

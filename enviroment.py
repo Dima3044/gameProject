@@ -19,33 +19,37 @@ class Maze():
             enemy_rect = enemy[0].get_rect(topleft=enemy[1])
             x, y = enemy[1]
             direction = directions_history[id][1]
+            pause = directions_history[id][2]
+            pause -= 1
             directions = self.chooseDirection(enemy[0], enemy[1])
-
-            if directions == directions_history[id][0]:
-                direction = directions_history[id][1]
-            else:
-                up_or_down = []
-                left_or_right = []
-                if direction == 'right' or direction == 'left':
-                    if 'up' in directions:
-                        up_or_down.append('up')
-                    if 'down' in directions:
-                        up_or_down.append('down')
-
-                elif direction == 'up' or direction == 'down':
-                    if 'right' in directions:
-                        left_or_right.append('right')
-                    if 'left' in directions:
-                        left_or_right.append('left')
-
-                if up_or_down:
-                    direction = choice(up_or_down)
-                elif left_or_right:
-                    direction = choice(left_or_right)
+            if pause <= 0:
+                pause = 2
+                if directions == directions_history[id][0] and (x, y) != directions_history[id][3]:
+                    direction = directions_history[id][1]
                 else:
-                    direction = choice(directions)
+                    up_or_down = []
+                    left_or_right = []
+                    if direction == 'right' or direction == 'left':
+                        if 'up' in directions:
+                            up_or_down.append('up')
+                        if 'down' in directions:
+                            up_or_down.append('down')
 
-            directions_history[id] = [directions, direction]
+                    elif direction == 'up' or direction == 'down':
+                        if 'right' in directions:
+                            left_or_right.append('right')
+                        if 'left' in directions:
+                            left_or_right.append('left')
+
+                    if up_or_down:
+                        direction = choice(up_or_down)
+                    elif left_or_right:
+                        direction = choice(left_or_right)
+                    else:
+                        direction = choice(directions)
+            else:
+                direction = directions_history[id][1]
+            directions_history[id] = [directions, direction, pause, (x, y)]
             if direction == 'up':
                 enemy_rect[1] -= speed_y
                 if not self.checkIntersection(enemy_rect, is_player=False):
@@ -144,7 +148,7 @@ class Enemy():
 
     def addEnemy(self, img, coord):
         enemies.append([img, coord])
-        directions_history[len(directions_history)] = [[], 'right']
+        directions_history[len(directions_history)] = [[], 'right', 2, coord]
 
 
 enemies = []
